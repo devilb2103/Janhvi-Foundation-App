@@ -1,0 +1,12 @@
+✅ GET /api/projects – Retrieves all projects.
+✅ GET /api/workers – Retrieves all workers.
+✅ GET /api/projects/ – Retrieves the project details along with assigned workers.
+✅ GET /api/attendance – Queries attendance for a user.
+
+✅ POST /api/auth/login – Authenticates a user with username and password.
+✅ POST /api/projects – Creates a new project.
+✅ POST /api/workers – Creates a new worker.
+✅ POST /api/attendance – Marks attendance for a worker on a project.
+
+✅ PATCH /api/projects/ – Updates the details of an existing project.
+✅ PUT /api/projects/ – updates workers in a project.
