@@ -15,5 +15,3 @@ router.put('/', updateWorkers);
 router.patch('/', updateProject);
 
 module.exports = router;
-
-// create duplicate checker function
