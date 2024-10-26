@@ -1,9 +1,9 @@
 const express = require('express');
-const { db } = require('./utils/firebase');
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
 const workerRoutes = require('./routes/workers');
 const attendanceRoutes = require('./routes/attendance');
+const backupRoutes = require('./routes/backup');
 const { initializeTables } = require('./initialize_db');
 
 const app = express();
@@ -14,6 +14,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/projects', projectRoutes);
 app.use('/api/workers', workerRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/backup', backupRoutes);
 
 // Initialize Firebase tables on server startup before first request
 initializeTables();

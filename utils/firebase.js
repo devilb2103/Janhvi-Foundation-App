@@ -7,7 +7,7 @@ dotenv.config();
 // Initialize Firebase Admin SDK
 admin.initializeApp({
 	credential: admin.credential.cert(
-		require('./janhvi-attendance-app-demo-firebase-adminsdk-bvdgo-de554fb1c5.json')
+		require('./janhvi-attendance-app-demo-firebase-adminsdk-bvdgo-bf11d86c1c.json')
 	),
 	databaseURL: process.env.DATABASE_URL,
 });

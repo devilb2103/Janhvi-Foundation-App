@@ -142,4 +142,85 @@ const createWorker = async (req, res) => {
 	}
 };
 
-module.exports = { getAllWorkers, createWorker };
+/**
+ * DELETE /api/workers/deleteWorker - Delete a worker
+ * @param {Object} req.body - Request body
+ * @param {string} req.body.username - Username of the worker to be deleted
+ * @returns {Promise<Object>} - Confirmation message of deletion
+ * @example
+ * // Request
+ * {
+ *   "username": "worker1"
+ * }
+ * // Response
+ * {
+ *   "message": "Worker deleted successfully"
+ * }
+ * @throws Will return an error message if the username is missing,
+ * not found, or if the deletion process fails.
+ */
+const deleteWorker = async (req, res) => {
+	const { username } = req.body;
+
+	// Check if username is provided
+	if (!username) {
+		return res.status(400).json({ error: 'Username is required' });
+	}
+
+	try {
+		// Step 1: Find the worker in the workers table
+		const workerSnapshot = await db
+			.ref('workers')
+			.orderByChild('username')
+			.equalTo(username)
+			.once('value');
+		const workerData = workerSnapshot.val();
+
+		// If worker not found, return 404
+		if (!workerData) {
+			return res.status(404).json({ error: 'Worker not found' });
+		}
+
+		// Get the key of the worker
+		const workerKey = Object.keys(workerData)[0];
+
+		// Step 2: Delete worker record
+		await db.ref(`workers/${workerKey}`).remove();
+
+		// Step 3: Find and delete corresponding login credential
+		const credentialSnapshot = await db
+			.ref('logincredentials')
+			.orderByChild('username')
+			.equalTo(username)
+			.once('value');
+		const credentialData = credentialSnapshot.val();
+
+		if (credentialData) {
+			const credentialKey = Object.keys(credentialData)[0];
+			await db.ref(`logincredentials/${credentialKey}`).remove();
+		}
+
+		// Step 4: Remove worker from all projects
+		const projectsSnapshot = await db.ref('projects').once('value');
+		const projectsData = projectsSnapshot.val();
+
+		for (const projectKey in projectsData) {
+			const project = projectsData[projectKey];
+			if (project.workers && project.workers.includes(username)) {
+				const updatedWorkers = project.workers.filter(
+					(worker) => worker !== username
+				);
+				await db
+					.ref(`projects/${projectKey}`)
+					.update({ workers: updatedWorkers });
+			}
+		}
+
+		res.status(200).json({ message: 'Worker deleted successfully' });
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: 'Failed to delete worker' });
+	}
+};
+
+module.exports = { getAllWorkers, createWorker, deleteWorker };

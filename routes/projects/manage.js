@@ -351,10 +351,65 @@ const getUserProjectData = async (req, res) => {
 	}
 };
 
+/**
+ * DELETE /api/projects - Delete a project by project name
+ * @param {Object} req - Request object
+ * @param {string} req.body.projectName - Name of the project to delete
+ * @returns {Promise<Object>} - Confirmation message of deletion
+ * @example
+ * // Request
+ * DELETE /api/projects
+ * {
+ *   "projectName": "My Project"
+ * }
+ * // Response
+ * {
+ *   "message": "Project deleted successfully",
+ *   "projectId": "-LZJl8sZIzZJ8sZIzZ"
+ * }
+ */
+const deleteProject = async (req, res) => {
+	const { projectName } = req.body;
+
+	if (!projectName) {
+		return res.status(400).json({ error: 'Project name is required' });
+	}
+
+	try {
+		// Find the project by projectName
+		const projectsRef = db.ref('projects');
+		const projectsSnapshot = await projectsRef.once('value');
+		const allProjects = projectsSnapshot.val();
+
+		const projectEntry = Object.entries(allProjects).find(
+			([key, project]) =>
+				project.projectName.toLowerCase() === projectName.toLowerCase()
+		);
+
+		if (!projectEntry) {
+			return res.status(404).json({ error: 'Project not found' });
+		}
+
+		const [projectId] = projectEntry;
+
+		// Delete the project from Firebase
+		await projectsRef.child(projectId).remove();
+
+		res.status(200).json({
+			message: 'Project deleted successfully',
+			projectId: projectId,
+		});
+	} catch (error) {
+		console.error(error);
+		res.status(500).json({ error: 'Failed to delete project' });
+	}
+};
+
 module.exports = {
 	getAllProjects,
 	createProject,
 	updateWorkers,
 	updateProject,
 	getUserProjectData,
+	deleteProject,
 };
