@@ -1,4 +1,6 @@
 const express = require('express');
+const cors = require('cors');
+
 const authRoutes = require('./routes/auth');
 const projectRoutes = require('./routes/projects');
 const workerRoutes = require('./routes/workers');
@@ -8,6 +10,7 @@ const { initializeTables } = require('./initialize_db');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
 // Register all routes
 app.use('/api/auth', authRoutes);
